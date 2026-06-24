@@ -64,29 +64,6 @@ Chip8 chip8 = {0};
 #define FONT_SIZE   14
 #define ROW_H       18
 
-static void hexdump(size_t start, size_t end) {
-    if (end > RAM_SIZE) end = RAM_SIZE;
-    if (start >= end) return;
-    size_t row = start & ~0xF;
-    for (size_t off = row; off < end; off += 16) {
-        printf("\033[36m%08zx\033[0m: ", off);
-        for (size_t i = 0; i < 16; i++) {
-            size_t p = off + i;
-            if (p < start || p >= end) printf("  ");
-            else printf("%02x", chip8.ram[p]);
-            if (i % 2 == 1) printf(" ");
-        }
-        printf(" ");
-        for (size_t i = 0; i < 16; i++) {
-            size_t p = off + i;
-            if (p < start || p >= end) { printf(" "); continue; }
-            uint8_t c = chip8.ram[p];
-            printf("%c", c >= 32 && c < 127 ? c : '.');
-        }
-        printf("\n");
-    }
-}
-
 void print_bits16(uint16_t n) {
     printf("%d = ", n);
     for (uint8_t i = 0; i < 16; i++) {
@@ -183,10 +160,6 @@ static uint8_t get_x(uint16_t opcode) {
 
 static uint8_t get_y(uint16_t opcode) {
     return (opcode >> 4) & 0xF;
-}
-
-static uint8_t get_cat(uint16_t opcode) {
-    return (opcode >> 12) & 0xF;
 }
 
 static uint8_t get_n(uint16_t opcode) { return opcode & 0xF; }
@@ -502,14 +475,6 @@ static void chip8_execute(void) {
     }
 }
 
-static void chip8_loop(void) {
-    while (1) {
-        if (chip8.pc >= RAM_SIZE - 1) break;
-        chip8_execute();
-        usleep(100 * 1000);
-    }
-}
-
 static int chip8_init(char *rom) {
     printf("CHIP8 Emulator!\n");
 
@@ -675,8 +640,5 @@ int main(int argc, char **argv) {
     }
     if (chip8_init(argv[1])) return -1;
     display();
-    // hexdump(0, 800);
-    // print_chip8_reg();
-    // print_chip8_stack();
     return 0;
 }

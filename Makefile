@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -O2 -Wunused-function
-LDFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt
+LDFLAGS = -lraylib -lm
 
 all: chip8
 
